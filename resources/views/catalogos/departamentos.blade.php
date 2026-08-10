@@ -12,18 +12,25 @@
             <div class="table-responsive">
                 <table id="tablaDep" class="table table-hover table-striped align-middle">
                     <thead class="table-light">
-                        <tr><th>ID</th><th>Nombre</th><th>Dirección</th><th>Estatus</th><th class="text-center">Acciones</th></tr>
+                        <tr><th>ID</th><th>Nombre</th><th>Clave</th><th>Dirección</th><th>Estatus</th><th class="text-center">Acciones</th></tr>
                     </thead>
                     <tbody>
                         @foreach($departamentos as $dep)
                         <tr id="row-dep-{{ $dep->id }}">
                             <td class="text-muted">{{ $dep->id }}</td>
                             <td class="fw-semibold">{{ $dep->nombre }}</td>
+                            <td>
+                                @if($dep->clave)
+                                <span class="badge" style="background:#e8f5ee;color:#006039;font-family:monospace;font-size:.8rem;">{{ $dep->clave }}</span>
+                                @else
+                                <span class="text-muted small fst-italic">Sin clave</span>
+                                @endif
+                            </td>
                             <td>{{ $dep->direccion->nombre ?? 'N/A' }}</td>
                             <td><span class="badge {{ $dep->activo ? 'bg-success' : 'bg-secondary' }} rounded-pill px-3">{{ $dep->activo ? 'Activo' : 'Inactivo' }}</span></td>
                             <td class="text-center">
                                 <div class="btn-group btn-group-sm">
-                                    <button class="btn btn-outline-primary" onclick="abrirEditar({{ $dep->id }}, '{{ addslashes($dep->nombre) }}', {{ $dep->direccion_id }}, {{ $dep->activo ? 1 : 0 }})"><i class="bi bi-pencil"></i></button>
+                                    <button class="btn btn-outline-primary" onclick="abrirEditar({{ $dep->id }}, '{{ addslashes($dep->nombre) }}', '{{ $dep->clave ?? '' }}', {{ $dep->direccion_id }}, {{ $dep->activo ? 1 : 0 }})"><i class="bi bi-pencil"></i></button>
                                     <button class="btn btn-outline-danger" onclick="eliminar({{ $dep->id }})"><i class="bi bi-trash"></i></button>
                                 </div>
                             </td>
@@ -47,6 +54,10 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
                         <input type="text" id="nombreCrear" class="form-control" placeholder="Ej. Laboratorios">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Clave <span class="text-muted small fw-normal">(para el folio de oficios, ej: DASE)</span></label>
+                        <input type="text" id="claveCrear" class="form-control" placeholder="DASE" maxlength="20" style="text-transform:uppercase;">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Dirección <span class="text-danger">*</span></label>
@@ -81,6 +92,10 @@
                     <div class="mb-3">
                         <label class="form-label fw-bold">Nombre <span class="text-danger">*</span></label>
                         <input type="text" id="editNombre" class="form-control">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Clave <span class="text-muted small fw-normal">(para el folio de oficios)</span></label>
+                        <input type="text" id="editClave" class="form-control" maxlength="20" style="text-transform:uppercase;">
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-bold">Dirección <span class="text-danger">*</span></label>
@@ -118,17 +133,17 @@
         const CSRF = document.querySelector('meta[name=csrf-token]').content;
         $(document).ready(function(){ $('#tablaDep').DataTable({ language: { url: 'https://cdn.datatables.net/plug-ins/1.13.7/i18n/es-MX.json' } }); });
         function showToast(msg, type='success'){ const t=document.getElementById('toastMsg'); t.style.background={success:'#006039',danger:'#dc3545',warning:'#ffc107'}[type]||'#006039'; document.getElementById('toastText').textContent=msg; bootstrap.Toast.getOrCreateInstance(t,{delay:3500}).show(); }
-        function abrirEditar(id,nombre,dirId,activo){ document.getElementById('editId').value=id; document.getElementById('editNombre').value=nombre; document.getElementById('editDireccion').value=dirId; document.getElementById('editActivo').checked=activo==1; new bootstrap.Modal(document.getElementById('modalEditar')).show(); }
+        function abrirEditar(id,nombre,clave,dirId,activo){ document.getElementById('editId').value=id; document.getElementById('editNombre').value=nombre; document.getElementById('editClave').value=clave||''; document.getElementById('editDireccion').value=dirId; document.getElementById('editActivo').checked=activo==1; new bootstrap.Modal(document.getElementById('modalEditar')).show(); }
         async function guardarNuevo(){
-            const nombre=document.getElementById('nombreCrear').value.trim(); const dir=document.getElementById('direccionCrear').value;
+            const nombre=document.getElementById('nombreCrear').value.trim(); const clave=document.getElementById('claveCrear').value.trim().toUpperCase(); const dir=document.getElementById('direccionCrear').value;
             if(!nombre||!dir) return showToast('Nombre y Dirección son requeridos.','warning');
-            const r=await fetch('{{ route("catalogos.departamentos.store") }}',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},body:JSON.stringify({nombre,direccion_id:dir})});
+            const r=await fetch('{{ route("catalogos.departamentos.store") }}',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},body:JSON.stringify({nombre,clave:clave||null,direccion_id:dir})});
             const d=await r.json(); if(r.ok){showToast(d.message);setTimeout(()=>location.reload(),1200);}else showToast(d.message||Object.values(d.errors||{})[0]?.[0],'danger');
         }
         async function guardarEdicion(){
-            const id=document.getElementById('editId').value; const nombre=document.getElementById('editNombre').value.trim(); const dir=document.getElementById('editDireccion').value; const activo=document.getElementById('editActivo').checked?1:0;
+            const id=document.getElementById('editId').value; const nombre=document.getElementById('editNombre').value.trim(); const clave=document.getElementById('editClave').value.trim().toUpperCase(); const dir=document.getElementById('editDireccion').value; const activo=document.getElementById('editActivo').checked?1:0;
             if(!nombre) return showToast('Nombre es requerido.','warning');
-            const r=await fetch(`/catalogos/departamentos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},body:JSON.stringify({nombre,direccion_id:dir,activo})});
+            const r=await fetch(`/catalogos/departamentos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':CSRF},body:JSON.stringify({nombre,clave:clave||null,direccion_id:dir,activo})});
             const d=await r.json(); if(r.ok){showToast(d.message);setTimeout(()=>location.reload(),1200);}else showToast(d.message,'danger');
         }
         async function eliminar(id){

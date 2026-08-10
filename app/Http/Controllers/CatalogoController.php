@@ -51,20 +51,30 @@ class CatalogoController extends Controller
     public function departamentosStore(Request $request)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre'       => 'required|string|max:255',
+            'clave'        => 'nullable|string|max:20|unique:departamentos,clave',
             'direccion_id' => 'required|exists:direcciones,id'
         ]);
-        Departamento::create(['nombre' => $request->nombre, 'direccion_id' => $request->direccion_id, 'activo' => true]);
+        Departamento::create([
+            'nombre'       => $request->nombre,
+            'clave'        => $request->clave ? strtoupper(trim($request->clave)) : null,
+            'direccion_id' => $request->direccion_id,
+            'activo'       => true,
+        ]);
         return response()->json(['message' => 'Departamento creado correctamente.']);
     }
 
     public function departamentosUpdate(Request $request, Departamento $departamento)
     {
         $request->validate([
-            'nombre' => 'required|string|max:255',
+            'nombre'       => 'required|string|max:255',
+            'clave'        => 'nullable|string|max:20|unique:departamentos,clave,' . $departamento->id,
             'direccion_id' => 'required|exists:direcciones,id'
         ]);
-        $departamento->update($request->only('nombre', 'direccion_id', 'activo'));
+        $departamento->update(array_merge(
+            $request->only('nombre', 'direccion_id', 'activo'),
+            ['clave' => $request->clave ? strtoupper(trim($request->clave)) : null]
+        ));
         return response()->json(['message' => 'Departamento actualizado correctamente.']);
     }
 

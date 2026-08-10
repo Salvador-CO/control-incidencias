@@ -14,6 +14,7 @@ class Departamento extends Model
     protected $fillable = [
         'direccion_id',
         'nombre',
+        'clave',
         'activo',
         'jefe_id',
     ];
@@ -26,5 +27,15 @@ class Departamento extends Model
     public function jefe()
     {
         return $this->belongsTo(Empleado::class, 'jefe_id');
+    }
+
+    public function oficios()
+    {
+        return $this->hasMany(Oficio::class);
+    }
+
+    public function onedriveConfig()
+    {
+        return $this->hasOne(OnedriveConfig::class);
     }
 }

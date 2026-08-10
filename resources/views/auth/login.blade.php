@@ -1,9 +1,9 @@
 <x-guest-layout>
     <!-- Session Status -->
     @if (session('status'))
-        <div class="alert alert-success mb-4" role="alert">
-            {{ session('status') }}
-        </div>
+    <div class="alert alert-success mb-4" role="alert">
+        {{ session('status') }}
+    </div>
     @endif
 
     <form method="POST" action="{{ route('login') }}">
@@ -19,32 +19,34 @@
             <label for="email" class="form-label">Correo Electrónico</label>
             <div class="input-group shadow-sm">
                 <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-envelope"></i></span>
-                <input id="email" type="email" class="form-control border-start-0 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="usuario@sicip.com">
+                <input id="email" type="email" class="form-control border-start-0 @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autofocus autocomplete="username" placeholder="usuario@CIPRO.com">
                 @error('email')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
                 @enderror
             </div>
         </div>
 
         <!-- Password -->
         <div class="mb-4">
+
             <label for="password" class="form-label d-flex justify-content-between">
                 Contraseña
+                <!-- 
                 @if (Route::has('password.request'))
                     <a class="text-decoration-none small" style="color: var(--cb-green); font-weight: 500;" href="{{ route('password.request') }}">
                         ¿Olvidaste tu contraseña?
                     </a>
-                @endif
+                @endif-->
             </label>
             <div class="input-group shadow-sm">
                 <span class="input-group-text bg-light border-end-0 text-muted"><i class="bi bi-lock"></i></span>
                 <input id="password" type="password" class="form-control border-start-0 @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="••••••••">
                 @error('password')
-                    <div class="invalid-feedback">
-                        {{ $message }}
-                    </div>
+                <div class="invalid-feedback">
+                    {{ $message }}
+                </div>
                 @enderror
             </div>
         </div>

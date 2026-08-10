@@ -41,6 +41,14 @@ class PermisosSeeder extends Seeder
             // Usuarios y Roles (solo admins)
             ['nombre' => 'gestionar-usuarios',      'modulo' => 'Administración'],
             ['nombre' => 'gestionar-roles',         'modulo' => 'Administración'],
+
+            // Oficios
+            ['nombre' => 'ver-oficios',             'modulo' => 'Oficios'],
+            ['nombre' => 'crear-oficios',           'modulo' => 'Oficios'],
+            ['nombre' => 'editar-oficios',          'modulo' => 'Oficios'],
+            ['nombre' => 'cancelar-oficios',        'modulo' => 'Oficios'],
+            ['nombre' => 'ver-oficios-todos',       'modulo' => 'Oficios'],
+            ['nombre' => 'gestionar-oficios-config','modulo' => 'Oficios'],
         ];
 
         foreach ($permisos as $p) {
@@ -61,6 +69,7 @@ class PermisosSeeder extends Seeder
             'ver-incidencias', 'crear-incidencias', 'editar-incidencias',
             'ver-empleados',
             'ver-reportes', 'exportar-reportes',
+            'ver-oficios', 'ver-oficios-todos',
         ]);
 
         // --- Rol Capturista: solo captura de incidencias ---
@@ -69,6 +78,13 @@ class PermisosSeeder extends Seeder
             'ver-dashboard',
             'ver-incidencias', 'crear-incidencias',
             'ver-reportes',
+        ]);
+
+        // --- Rol Asistente: control de oficios de su departamento ---
+        $asistente = Role::firstOrCreate(['name' => 'Asistente', 'guard_name' => 'web']);
+        $asistente->syncPermissions([
+            'ver-dashboard',
+            'ver-oficios', 'crear-oficios', 'editar-oficios', 'cancelar-oficios',
         ]);
     }
 }
