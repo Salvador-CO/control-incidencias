@@ -1,0 +1,9 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Redirigir las peticiones de archivos multimedia/storage si usas subidas de archivos
+    RewriteRule ^storage/(.*)$ /storage/app/public/$1 [END]
+
+    # Redirigir todo el tráfico hacia la carpeta public de Laravel de forma oculta
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
