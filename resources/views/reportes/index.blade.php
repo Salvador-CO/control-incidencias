@@ -697,41 +697,45 @@
             return;
         }
 
-        // ── Encabezado dinámico (mes + subheader Q1/Q2) ───────────────────
+        // ── Encabezado dinámico: fila 1 = mes (colspan 2), fila 2 = Q1 | Q2 ────
         thead.innerHTML = `
             <tr>
                 <th class="th-emp ps-3" rowspan="2">#&nbsp; Empleado / Depto</th>
-                <th rowspan="2" style="min-width:56px;">Total</th>
-                ${meses.map(m => `<th colspan="2" style="min-width:90px;">${m}</th>`).join('')}
+                <th rowspan="2" style="min-width:56px;text-align:center;">Total</th>
+                ${meses.map(m => `<th colspan="2" style="min-width:90px;text-align:center;">${m}</th>`).join('')}
             </tr>
             <tr>
                 ${meses.map(() => `
-                    <th style="width:42px;font-size:.65rem;color:#006039;">Q1<br><span style="font-weight:400;color:#adb5bd;">1–15</span></th>
-                    <th style="width:42px;font-size:.65rem;color:#1a7a3c;">Q2<br><span style="font-weight:400;color:#adb5bd;">16–fin</span></th>
+                    <th style="width:46px;font-size:.65rem;color:#006039;text-align:center;">
+                        Q1<br><span style="font-weight:400;color:#adb5bd;font-size:.58rem;">1–15</span>
+                    </th>
+                    <th style="width:46px;font-size:.65rem;color:#1a7a3c;text-align:center;">
+                        Q2<br><span style="font-weight:400;color:#adb5bd;font-size:.58rem;">16–fin</span>
+                    </th>
                 `).join('')}
             </tr>`;
 
-        // ── Filas de empleados ────────────────────────────────────────────
+        // ── Filas de empleados: 2 td por mes (Q1 y Q2 separadas) ─────────────
         tbody.innerHTML = empleados.map((e, i) => {
             const riesgo = e.riesgo;
+
+            // Genera DOS celdas por mes: una Q1 y una Q2
             const celdas = e.por_mes.map(m => {
-                const hc  = heatClass(m.total);
-                const tc  = totalColor(m.total);
-                // Chip Q1
-                const c1  = m.q1 > 0
-                    ? `<span class="mes-qna-chip q1">${m.q1}</span>`
-                    : `<span class="mes-qna-chip q-cero">0</span>`;
-                // Chip Q2
-                const c2  = m.q2 > 0
-                    ? `<span class="mes-qna-chip q2">${m.q2}</span>`
-                    : `<span class="mes-qna-chip q-cero">0</span>`;
-                return `
-                    <td class="${hc}" title="1ª Qna: ${m.q1} · 2ª Qna: ${m.q2}">
-                        <div class="mes-cell">
-                            <span class="mes-total ${tc}">${m.total > 0 ? m.total : '—'}</span>
-                            <div class="mes-qna-chips">${c1}${c2}</div>
-                        </div>
+                const hcQ1 = heatClass(m.q1);
+                const tcQ1 = totalColor(m.q1);
+                const hcQ2 = heatClass(m.q2);
+                const tcQ2 = totalColor(m.q2);
+
+                const tdQ1 = `
+                    <td class="${hcQ1}" title="1ª Quincena (días 1–15): ${m.q1}" style="text-align:center;vertical-align:middle;padding:4px 2px;">
+                        <span class="mes-total ${tcQ1}" style="font-size:.85rem;">${m.q1 > 0 ? m.q1 : '—'}</span>
                     </td>`;
+                const tdQ2 = `
+                    <td class="${hcQ2}" title="2ª Quincena (días 16–fin): ${m.q2}" style="text-align:center;vertical-align:middle;padding:4px 2px;">
+                        <span class="mes-total ${tcQ2}" style="font-size:.85rem;">${m.q2 > 0 ? m.q2 : '—'}</span>
+                    </td>`;
+
+                return tdQ1 + tdQ2;
             }).join('');
 
             return `
@@ -744,11 +748,12 @@
                     </div>
                     <div class="text-muted" style="font-size:.7rem;">${e.depto} · ${e.matricula}</div>
                 </td>
-                <td class="fw-bold" style="font-size:1rem;">${e.total}</td>
+                <td class="fw-bold" style="font-size:1rem;text-align:center;">${e.total}</td>
                 ${celdas}
             </tr>`;
         }).join('');
     }
+
 
     // ─── Aplicar todos los datos a la UI ──────────────────────────────────────
     function aplicarDatos(d) {
