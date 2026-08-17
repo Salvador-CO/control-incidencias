@@ -102,6 +102,47 @@
         .badge-ok     { background:#d1fae5; color:#065f46; font-size:.68rem; font-weight:700; padding:2px 8px; border-radius:99px; }
         .badge-qna    { background:#eff6ff; color:#1d4ed8; font-size:.65rem; font-weight:600; padding:2px 7px; border-radius:99px; }
 
+        /* ── Top Mensual ─────────────────────────────────────── */
+        #tablaTopMensual { font-size: .8rem; }
+        #tablaTopMensual thead th {
+            text-align: center; white-space: nowrap;
+            font-size: .72rem; color: #6b7280; font-weight: 700;
+            text-transform: uppercase; letter-spacing: .4px;
+        }
+        #tablaTopMensual thead th.th-emp {
+            text-align: left; min-width: 180px;
+        }
+        #tablaTopMensual td { text-align: center; vertical-align: middle; }
+        #tablaTopMensual td.td-emp { text-align: left; }
+        .mes-cell {
+            display: flex; flex-direction: column; align-items: center;
+            gap: 2px; cursor: default;
+        }
+        .mes-total {
+            font-weight: 700; font-size: .92rem; line-height: 1;
+        }
+        .mes-total.cero { color: #d1d5db; }
+        .mes-total.bajo  { color: #16a34a; }
+        .mes-total.medio { color: #d97706; }
+        .mes-total.alto  { color: #dc2626; }
+        .mes-qna-chips {
+            display: flex; gap: 3px; justify-content: center; flex-wrap: nowrap;
+        }
+        .mes-qna-chip {
+            font-size: .6rem; font-weight: 700; padding: 1px 5px;
+            border-radius: 99px; white-space: nowrap;
+        }
+        .mes-qna-chip.q1 { background: rgba(0,96,57,.12); color: #006039; }
+        .mes-qna-chip.q2 { background: rgba(38,166,91,.15); color: #1a7a3c; }
+        .mes-qna-chip.q-cero { background: #f3f4f6; color: #d1d5db; }
+        /* Heatmap de fondo de celda */
+        .mes-heat-0  { background: #fff; }
+        .mes-heat-1  { background: #f0fdf4; }
+        .mes-heat-2  { background: #dcfce7; }
+        .mes-heat-3  { background: #fef9c3; }
+        .mes-heat-4  { background: #fef3c7; }
+        .mes-heat-5p { background: #fee2e2; }
+
         /* ── Chips de filtros activos ─────────────────────── */
         .filtro-chip {
             display:inline-flex; align-items:center; gap:5px;
@@ -350,17 +391,62 @@
     </div>
 
     {{-- ══════════════════════════════════
-         ZONA 3c — TOP EMPLEADOS
+         ZONA 3c — TOP EMPLEADOS (TOTAL)
     ══════════════════════════════════ --}}
     <div class="card chart-card shadow-sm mb-4 p-3">
         <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-            <span class="section-title">Top 10 Empleados con más Incidencias</span>
+            <div>
+                <span class="section-title">Top 10 Empleados con más Incidencias</span>
+                <span class="ms-2 badge bg-secondary rounded-pill" style="font-size:.68rem;">Acumulado del período</span>
+            </div>
             <div class="d-flex gap-3 align-items-center small text-muted">
                 <span><span class="badge-riesgo">⚠ Riesgo</span> = ≥3 incidencias en la quincena actual</span>
                 <span><span class="badge-qna">Qna</span> = incidencias en la quincena vigente</span>
             </div>
         </div>
         <div id="topEmpleadosContainer"></div>
+    </div>
+
+    {{-- ══════════════════════════════════
+         ZONA 3d — TOP 10 DESGLOSE MENSUAL
+    ══════════════════════════════════ --}}
+    <div class="card chart-card shadow-sm mb-4" id="cardTopMensual">
+        <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center flex-wrap gap-2 py-3"
+             style="border-radius:16px 16px 0 0;">
+            <div>
+                <span class="section-title">Top 10 · Desglose por Mes y Quincena</span>
+                <span class="ms-2 badge rounded-pill px-2" style="background:#eff6ff;color:#1d4ed8;font-size:.68rem;">Nuevo</span>
+            </div>
+            <div class="d-flex gap-3 align-items-center small text-muted flex-wrap">
+                <span>
+                    <span class="mes-qna-chip q1" style="font-size:.7rem;">Q1</span> = días 1–15
+                    &nbsp;
+                    <span class="mes-qna-chip q2" style="font-size:.7rem;">Q2</span> = días 16–fin
+                </span>
+                <span>Color de celda: <span style="font-size:.72rem;padding:1px 6px;border-radius:4px;background:#fee2e2;color:#dc2626;">rojo = ≥5</span></span>
+            </div>
+        </div>
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table id="tablaTopMensual" class="table table-bordered table-hover mb-0">
+                    <thead class="table-light" id="topMensualHead">
+                        <tr>
+                            <th class="th-emp ps-3">#&nbsp; Empleado / Depto</th>
+                            <th style="min-width:60px;">Total</th>
+                            {{-- Columnas de meses se insertan por JS --}}
+                        </tr>
+                    </thead>
+                    <tbody id="topMensualBody">
+                        <tr><td colspan="2" class="text-center text-muted py-4 small">Generando reporte…</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer bg-white border-top text-muted" style="font-size:.72rem;border-radius:0 0 16px 16px;">
+            <i class="bi bi-info-circle me-1"></i>
+            Los números de cada celda indican el total mensual. Las chips Q1/Q2 muestran cuántas caen en cada quincena.
+            El color de fondo es un mapa de calor: más rojo = más incidencias ese mes.
+        </div>
     </div>
 
     {{-- ══════════════════════════════════
@@ -545,7 +631,7 @@
         });
     }
 
-    // ─── Top Empleados ────────────────────────────────────────────────────────
+    // ─── Top 10 – Total del período ───────────────────────────────────────────
     function renderTop(empleados) {
         const cont = document.getElementById('topEmpleadosContainer');
         if (!empleados.length) {
@@ -584,6 +670,86 @@
         }).join('');
     }
 
+    // ─── Top 10 – Desglose mensual/quincena ──────────────────────────────────
+    function heatClass(n) {
+        if (n === 0) return 'mes-heat-0';
+        if (n === 1) return 'mes-heat-1';
+        if (n === 2) return 'mes-heat-2';
+        if (n === 3) return 'mes-heat-3';
+        if (n === 4) return 'mes-heat-4';
+        return 'mes-heat-5p';
+    }
+    function totalColor(n) {
+        if (n === 0) return 'cero';
+        if (n <= 2)  return 'bajo';
+        if (n <= 4)  return 'medio';
+        return 'alto';
+    }
+
+    function renderTopMensual(data) {
+        const { meses, empleados } = data;
+        const thead = document.getElementById('topMensualHead');
+        const tbody = document.getElementById('topMensualBody');
+
+        if (!empleados.length || !meses.length) {
+            thead.innerHTML = `<tr><th class="th-emp ps-3"># Empleado / Depto</th><th>Total</th></tr>`;
+            tbody.innerHTML = `<tr><td colspan="2" class="text-center text-muted py-4 small">Sin datos para el filtro seleccionado.</td></tr>`;
+            return;
+        }
+
+        // ── Encabezado dinámico (mes + subheader Q1/Q2) ───────────────────
+        thead.innerHTML = `
+            <tr>
+                <th class="th-emp ps-3" rowspan="2">#&nbsp; Empleado / Depto</th>
+                <th rowspan="2" style="min-width:56px;">Total</th>
+                ${meses.map(m => `<th colspan="2" style="min-width:90px;">${m}</th>`).join('')}
+            </tr>
+            <tr>
+                ${meses.map(() => `
+                    <th style="width:42px;font-size:.65rem;color:#006039;">Q1<br><span style="font-weight:400;color:#adb5bd;">1–15</span></th>
+                    <th style="width:42px;font-size:.65rem;color:#1a7a3c;">Q2<br><span style="font-weight:400;color:#adb5bd;">16–fin</span></th>
+                `).join('')}
+            </tr>`;
+
+        // ── Filas de empleados ────────────────────────────────────────────
+        tbody.innerHTML = empleados.map((e, i) => {
+            const riesgo = e.riesgo;
+            const celdas = e.por_mes.map(m => {
+                const hc  = heatClass(m.total);
+                const tc  = totalColor(m.total);
+                // Chip Q1
+                const c1  = m.q1 > 0
+                    ? `<span class="mes-qna-chip q1">${m.q1}</span>`
+                    : `<span class="mes-qna-chip q-cero">0</span>`;
+                // Chip Q2
+                const c2  = m.q2 > 0
+                    ? `<span class="mes-qna-chip q2">${m.q2}</span>`
+                    : `<span class="mes-qna-chip q-cero">0</span>`;
+                return `
+                    <td class="${hc}" title="1ª Qna: ${m.q1} · 2ª Qna: ${m.q2}">
+                        <div class="mes-cell">
+                            <span class="mes-total ${tc}">${m.total > 0 ? m.total : '—'}</span>
+                            <div class="mes-qna-chips">${c1}${c2}</div>
+                        </div>
+                    </td>`;
+            }).join('');
+
+            return `
+            <tr>
+                <td class="td-emp ps-3">
+                    <div class="fw-semibold" style="font-size:.82rem;">
+                        <span class="text-muted me-1">#${i+1}</span>
+                        ${e.nombre}
+                        <span class="${riesgo ? 'badge-riesgo' : 'badge-ok'} ms-1">${riesgo ? '⚠' : '✓'}</span>
+                    </div>
+                    <div class="text-muted" style="font-size:.7rem;">${e.depto} · ${e.matricula}</div>
+                </td>
+                <td class="fw-bold" style="font-size:1rem;">${e.total}</td>
+                ${celdas}
+            </tr>`;
+        }).join('');
+    }
+
     // ─── Aplicar todos los datos a la UI ──────────────────────────────────────
     function aplicarDatos(d) {
         // KPIs
@@ -599,8 +765,11 @@
         renderLinea   (d.graficas.linea.labels,    d.graficas.linea.data);
         renderQuincena(d.graficas.quincena.labels, d.graficas.quincena.data);
 
-        // Top empleados
+        // Top empleados — acumulado
         renderTop(d.top_empleados);
+
+        // Top empleados — desglose mensual/quincena
+        renderTopMensual(d.top_empleados_mensual);
 
         // Tabla
         dtReporte.clear();

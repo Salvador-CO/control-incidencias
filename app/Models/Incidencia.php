@@ -20,8 +20,14 @@ class Incidencia extends Model
         'motivo',
         'observaciones',
         'recibido_por',
+        'fecha_entrega',
         'capturado_por',
         'estatus'
+    ];
+
+    protected $casts = [
+        'fecha'         => 'date',
+        'fecha_entrega' => 'datetime',
     ];
 
     public function empleado()

@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     // ── Incidencias ───────────────────────────────
     Route::post('incidencias/entregar-departamento', [\App\Http\Controllers\IncidenciaController::class, 'entregarDepartamento'])->name('incidencias.entregar-departamento');
     Route::post('incidencias/{incidencia}/entregar', [\App\Http\Controllers\IncidenciaController::class, 'entregar'])->name('incidencias.entregar');
+    Route::get('incidencias/filtrar', [\App\Http\Controllers\IncidenciaController::class, 'filtrar'])->name('incidencias.filtrar');
     Route::resource('incidencias', \App\Http\Controllers\IncidenciaController::class);
 
     // ── Reportes ──────────────────────────────────

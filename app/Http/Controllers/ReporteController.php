@@ -188,7 +188,7 @@ class ReporteController extends Controller
 
         $quincenasFinal = collect($quincenasBase)->merge($porQuincena)->sortKeys();
 
-        // ── Top 10 empleados con más incidencias ─────────────────────────────
+        // ── Top 10 empleados – TOTAL del período (tabla existente) ────────────
         $topEmpleados = $incidencias
             ->groupBy('empleado_id')
             ->map(function ($grupo) use ($qna) {
@@ -213,6 +213,50 @@ class ReporteController extends Controller
             ->sortByDesc('total')
             ->take(10)
             ->values();
+
+        // ── Top 10 empleados – DESGLOSE POR MES/QUINCENA (nueva tabla) ───────
+        // Meses presentes en el período (ordenados)
+        $mesesPresentes = $incidencias
+            ->groupBy(fn($i) => Carbon::parse($i->fecha)->format('Y-m'))
+            ->keys()
+            ->sort()
+            ->values();
+
+        $top10Mensual = $incidencias
+            ->groupBy('empleado_id')
+            ->map(function ($grupo) use ($mesesPresentes, $qna) {
+                $emp = $grupo->first()->empleado;
+
+                // Para cada mes: total, q1 (días 1-15), q2 (días 16-fin)
+                $porMes = $mesesPresentes->map(function ($ym) use ($grupo) {
+                    $delMes = $grupo->filter(fn($i) => Carbon::parse($i->fecha)->format('Y-m') === $ym);
+                    $q1 = $delMes->filter(fn($i) => Carbon::parse($i->fecha)->day <= 15)->count();
+                    $q2 = $delMes->filter(fn($i) => Carbon::parse($i->fecha)->day > 15)->count();
+                    return ['total' => $delMes->count(), 'q1' => $q1, 'q2' => $q2];
+                })->values();
+
+                $enQnaActual = $grupo->filter(function ($i) use ($qna) {
+                    return Carbon::parse($i->fecha)->between($qna['inicio'], $qna['fin']);
+                })->count();
+
+                return [
+                    'nombre'        => $emp ? ($emp->nombre . ' ' . $emp->apellido_paterno) : 'Desconocido',
+                    'matricula'     => $emp?->numero_empleado ?? '—',
+                    'depto'         => optional($grupo->first()->departamento)->nombre ?? 'N/A',
+                    'total'         => $grupo->count(),
+                    'por_mes'       => $porMes,
+                    'riesgo'        => $enQnaActual >= 3,
+                    'en_qna_actual' => $enQnaActual,
+                ];
+            })
+            ->sortByDesc('total')
+            ->take(10)
+            ->values();
+
+        // Labels de meses formateados para cabeceras de columna
+        $mesesLabels = $mesesPresentes->map(
+            fn($ym) => Carbon::createFromFormat('Y-m', $ym)->isoFormat('MMM YYYY')
+        )->values();
 
         // ── Tabla de incidencias (serializada) ───────────────────────────────
         $tablaRows = $incidencias->sortByDesc('fecha')->map(fn($i) => [
@@ -246,8 +290,12 @@ class ReporteController extends Controller
                 'linea'     => ['labels' => $tendenciaLabels->values(),          'data' => $tendencia->values()],
                 'quincena'  => ['labels' => $quincenasFinal->keys()->values(), 'data' => $quincenasFinal->values()],
             ],
-            'top_empleados' => $topEmpleados,
-            'tabla'         => $tablaRows,
+            'top_empleados'         => $topEmpleados,
+            'top_empleados_mensual' => [
+                'meses'     => $mesesLabels,
+                'empleados' => $top10Mensual,
+            ],
+            'tabla' => $tablaRows,
         ];
     }
 }
